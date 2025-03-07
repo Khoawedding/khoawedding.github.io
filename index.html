@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anh Khoa & Ngọc Thảo Wedding Invitation</title>
+    <style>
+        :root {
+            --primary-color: #9e4244;
+            --secondary-color: #f9f5f5;
+            --text-color: #5a3d3d;
+            --accent-color: #d8c1c1;
+            --timing: 0.5s;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        body {
+            background-color: #f9f5f5;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .card-stack {
+            width: 100%;
+            position: relative;
+            height: 580px;
+            perspective: 1000px;
+        }
+        
+        .card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease, opacity 0.8s ease;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            pointer-events: none;
+            background-color: white;
+            overflow: hidden;
+            padding: 20px;
+            transform: translateY(30px) scale(0.95);
+        }
+        
+        .card.active {
+            opacity: 1;
+            pointer-events: all;
+            z-index: 10;
+            transform: translateY(0) scale(1);
+        }
+        
+        /* Entry animations for card elements */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .card.active .card-content > * {
+            animation: fadeInUp 0.7s ease forwards;
+            opacity: 0;
+        }
+        
+        .card.active .flower-decoration {
+            animation: fadeIn 1.2s ease forwards 0.3s;
+            opacity: 0;
+        }
+        
+        .card.active h1 {
+            animation-delay: 0.2s;
+        }
+        
+        .card.active .and {
+            animation-delay: 0.4s;
+        }
+        
+        .card.active h2, .card.active h3 {
+            animation-delay: 0.6s;
+        }
+        
+        .card.active .date, 
+        .card.active .time,
+        .card.active .address {
+            animation-delay: 0.8s;
+        }
+        
+        .card.active .details,
+        .card.active .divider,
+        .card.active .small-text {
+            animation-delay: 1s;
+        }
+        
+        .card.active .qr-code {
+            animation: scaleIn 0.8s ease forwards 1.2s;
+            opacity: 0;
+        }
+        
+        .card.active .parents-info {
+            animation-delay: 0.3s;
+        }
+        
+        .card.active .ceremony-title {
+            animation-delay: 0.7s;
+        }
+        
+        .card.active .monogram {
+            animation-delay: 0.8s;
+            animation-duration: 1s;
+        }
+        
+        .flower-decoration {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 140px;
+            height: 220px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        h1, h2, h3, p {
+            margin: 8px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1, h2 {
+            color: var(--primary-color);
+            font-weight: normal;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 0;
+            line-height: 1.2;
+        }
+        
+        h2 {
+            font-size: 1.4rem;
+            font-style: italic;
+        }
+        
+        h3 {
+            font-size: 1.1rem;
+            font-weight: normal;
+            color: var(--primary-color);
+            margin-top: 15px;
+        }
+        
+        .date {
+            font-size: 1.2rem;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+        
+        .and {
+            font-family: 'Playball', cursive, 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 1.3rem;
+            margin: 5px 0;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        .divider {
+            width: 50%;
+            height: 1px;
+            background-color: var(--accent-color);
+            margin: 15px auto;
+        }
+        
+        .save-date {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .address {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.5;
+            max-width: 100%;
+        }
+        
+        .time {
+            font-size: 1.1rem;
+            margin-top: 15px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .small-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .details {
+            font-size: 0.85rem;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+            z-index: 20;
+        }
+        
+        .nav-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(158, 66, 68, 0.3);
+        }
+        
+        .nav-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            background-color: #833638;
+            transform: translateY(-2px);
+        }
+        
+        .page-indicator {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .page-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .page-dot.active {
+            background-color: var(--primary-color);
+            transform: scale(1.3);
+        }
+        
+        .parents-info {
+            font-size: 0.75rem;
+            text-align: center;
+            line-height: 1.3;
+            width: 100%;
+        }
+        
+        .parents-columns {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .parents-column {
+            width: 48%;
+            text-align: center;
+            font-size: 0.7rem;
+            line-height: 1.3;
+        }
+        
+        .parents-title {
+            font-weight: bold;
+            margin-bottom: 2px;
+            color: var(--primary-color);
+        }
+        
+        .ceremony-title {
+            font-size: 0.8rem;
+            margin-top: 10px;
+            font-weight: bold;
+            line-height: 1.4;
+            color: var(--primary-color);
+        }
+        
+        .role {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-top: 0;
+            color: var(--text-color);
+        }
+        
+        .qr-code {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .qr-code img {
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .qr-code img:hover {
+            transform: scale(1.05);
+        }
+        
+        .qr-text {
+            font-size: 0.7rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .card-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .closing-page {
+            justify-content: center;
+        }
+        
+        .thanks-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .monogram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+        
+        .monogram span:nth-child(2) {
+            font-size: 1.8rem;
+            margin: 0 10px;
+            font-family: 'Playball', cursive, 'Times New Roman', serif;
+            font-style: italic;
+        }
+        
+        .large-flower {
+            width: 180px;
+            height: 240px;
+            position: absolute;
+            top: -20px;
+            right: -80px;
+            transform: rotate(15deg);
+            opacity: 0.5;
+        }
+        
+        /* Loading animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        
+        .loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .heart-loader {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            animation: heartbeat 1.2s infinite;
+        }
+        
+        .heart-loader:before,
+        .heart-loader:after {
+            content: "";
+            position: absolute;
+            background-color: var(--primary-color);
+            width: 35px;
+            height: 55px;
+            border-radius: 50px 50px 0 0;
+        }
+        
+        .heart-loader:before {
+            transform: rotate(-45deg);
+            left: 7px;
+        }
+        
+        .heart-loader:after {
+            transform: rotate(45deg);
+            right: 7px;
+        }
+        
+        @keyframes heartbeat {
+            0% {
+                transform: scale(0.9);
+            }
+            25% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            75% {
+                transform: scale(1);
+            }
+        }
+        
+        @media (max-width: 380px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            h2 {
+                font-size: 1.2rem;
+            }
+            .flower-decoration {
+                width: 120px;
+            }
+            .parents-column {
+                font-size: 0.65rem;
+            }
+            .card-stack {
+                height: 550px;
+            }
+        }
+    </style>
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="heart-loader"></div>
+    </div>
+    
+    <div class="container">
+        <div class="card-stack">
+            <!-- Card 1: Save the Date -->
+            <div class="card active" id="card-1">
+                <div class="card-content">
+                    <svg class="flower-decoration" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
+                        <path d="M120,50 Q150,70 130,100 Q160,130 130,150 Q150,180 120,200" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <path d="M130,60 Q150,80 140,100" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <path d="M120,110 Q140,130 130,150" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <ellipse cx="130" cy="60" rx="15" ry="20" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <ellipse cx="140" cy="100" rx="15" ry="20" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <ellipse cx="130" cy="150" rx="15" ry="20" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                    </svg>
+                    
+                    <p class="save-date">Save Our Date</p>
+                    <h1>ANH KHOA</h1>
+                    <p class="and">and</p>
+                    <h1>NGỌC THẢO</h1>
+                    <p class="date">06.04.2025</p>
+                    
+                    <h3>Trân Trọng Kính Mời</h3>
+                    
+                    <div class="qr-code" style="margin-top: 20px;">
+                        <img src="https://quickchart.io/qr?text=https%3A%2F%2Fmaps.app.goo.gl%2FhAQ4XJe7AfyDvJz5A&size=120" alt="QR Code" />
+                        <p class="qr-text">Quét mã để xác nhận tham dự</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card 2: Parents Info & Announcement -->
+            <div class="card" id="card-2">
+                <div class="card-content">
+                    <div class="parents-info">
+                        <div class="parents-columns">
+                            <div class="parents-column">
+                                <p class="parents-title">Ông - Bà</p>
+                                <p>TRẦN THANH SANG<br>NGUYỄN THỊ THU THẢO</p>
+                                <p>20B Đặng Thị Sữa, Ấp 3A, Xã Tân Thạnh Tây, Huyện Củ Chi, TP HCM</p>
+                            </div>
+                            <div class="parents-column">
+                                <p class="parents-title">Ông - Bà</p>
+                                <p>NGUYỄN TRUNG HIẾU<br>HUỲNH KIM NGỌC</p>
+                                <p>7/9 Nguyễn Thị Sóc, Xã Bà Điểm, Huyện Hóc Môn - TP HCM</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 10px; margin-bottom: 15px;">TRÂN TRỌNG BÁO TIN LỄ TÂN HÔN<br>CỦA HAI CON CHÚNG TÔI</h3>
+                    
+                    <h1 style="margin-top: 15px;">TRẦN<br>ANH KHOA</h1>
+                    <p class="role">ÚT NAM</p>
+                    <p class="and">and</p>
+                    <h1>NGUYỄN HUỲNH<br>NGỌC THẢO</h1>
+                    <p class="role">TRƯỞNG NỮ</p>
+                    
+                    <h3 style="margin-top: 20px;">HÔN LỄ ĐƯỢC CỬ HÀNH TẠI TƯ GIA<br>VÀO LÚC: 11 GIỜ 00<br>NGÀY 06 THÁNG 04 NĂM 2025</h3>
+                    <p class="small-text">(Nhằm ngày 09 tháng 03 năm Ất Tỵ)</p>
+                </div>
+            </div>
+            
+            <!-- Card 3: Invitation Details -->
+            <div class="card" id="card-3">
+                <div class="card-content">
+                    <h1>ANH KHOA</h1>
+                    <p class="and">and</p>
+                    <h1>NGỌC THẢO</h1>
+                    
+                    <h3 style="margin-top: 20px;">TRÂN TRỌNG KÍNH MỜI:</h3>
+                    <p class="divider"></p>
+                    
+                    <p class="address">ĐẾN DỰ BUỔI TIỆC RƯỢU<br>CHUNG VUI CÙNG GIA ĐÌNH CHÚNG TÔI</p>
+                    
+                    <h2>TẠI: TƯ GIA</h2>
+                    <p class="address">SỐ 20B ĐƯỜNG ĐẶNG THỊ SỮA, ẤP 3A,<br>TÂN THẠNH TÂY, CỦ CHI, TP. HCM</p>
+                    
+                    <p class="time">VÀO LÚC: 11 GIỜ 00, CHỦ NHẬT<br>06.04.2025</p>
+                    <p class="small-text">(Nhằm ngày 09 tháng 03 năm Ất Tỵ)</p>
+                    
+                    <div class="details">
+                        <p>Đón Khách: 11H00<br>Khai Tiệc: 11H30</p>
+                    </div>
+                    
+                    <p class="divider"></p>
+                    <p>Kính mời!</p>
+                    
+                   
+                </div>
+            </div>
+            
+            <!-- Card 4: Closing Page -->
+            <div class="card" id="card-4">
+                <div class="card-content closing-page">
+                    <svg class="flower-decoration large-flower" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+                        <path d="M150,50 Q200,90 170,150 Q220,210 150,250" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <path d="M150,50 Q100,90 130,150 Q80,210 150,250" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <ellipse cx="150" cy="50" rx="25" ry="30" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <ellipse cx="170" cy="150" rx="25" ry="30" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <ellipse cx="130" cy="150" rx="25" ry="30" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                        <ellipse cx="150" cy="250" rx="25" ry="30" fill="none" stroke="#9e4244" stroke-width="1" opacity="0.7"/>
+                    </svg>
+                    
+                    <h1 style="margin-bottom: 15px;">CẢM ƠN</h1>
+                    
+                    <p class="thanks-text">Sự hiện diện của quý vị<br>là niềm vinh hạnh của gia đình chúng tôi</p>
+                    
+                    <div class="monogram">
+                        <span>Khoa</span>
+                        <span>&</span>
+                        <span>Thảo</span>
+                    </div>
+                    
+                    <p class="date">06.04.2025</p>
+                    
+                    <div class="qr-code" style="margin-top: 10px;">
+                        <img src="https://quickchart.io/qr?text=https%3A%2F%2Fmaps.app.goo.gl%2FhAQ4XJe7AfyDvJz5A&size=220" alt="QR Code" id="qr-code-4" />
+                        <p class="qr-text">Quét mã để xác nhận tham dự</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button id="prev-btn" class="nav-btn" disabled><i class="fas fa-arrow-left"></i> Trước</button>
+            <button id="next-btn" class="nav-btn">Tiếp <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <div class="page-indicator">
+            <div class="page-dot active" data-page="1"></div>
+            <div class="page-dot" data-page="2"></div>
+            <div class="page-dot" data-page="3"></div>
+            <div class="page-dot" data-page="4"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Loading overlay
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            
+            // Simulate loading and fade out the overlay
+            setTimeout(() => {
+                loadingOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 800);
+            }, 2000);
+            
+            const cards = document.querySelectorAll('.card');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const pageDots = document.querySelectorAll('.page-dot');
+            
+            let currentPage = 1;
+            const totalPages = cards.length;
+            
+            // Google Maps URL
+            const mapsUrl = "https://maps.app.goo.gl/gLY55ULFTX3scmnd6";
+            
+            // QR code images - in a real implementation, these would be generated
+            // For this demo, we'll use placeholders
+            const qrElements = document.querySelectorAll('[id^="qr-code-"]');
+            qrElements.forEach(el => {
+                // In a real implementation, you would generate QR codes with a library
+                // or use an API to create QR codes for the Google Maps URL
+                console.log(`QR code ID ${el.id} set to URL: ${mapsUrl}`);
+                
+                // For demonstration purposes, we're using placeholders
+                // In a real implementation, you would set the src to the generated QR code
+                
+                // Add click event to QR codes to open the URL
+                el.parentElement.style.cursor = 'pointer';
+                el.parentElement.addEventListener('click', function() {
+                    window.open(mapsUrl, '_blank');
+                });
+            });
+            
+            // Function to update UI based on current page
+            function updateCards() {
+                cards.forEach((card, index) => {
+                    if (index + 1 === currentPage) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+                
+                // Update navigation buttons
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === totalPages;
+                
+                // Update page dots
+                pageDots.forEach((dot, index) => {
+                    if (index + 1 === currentPage) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Navigation button event listeners
+            prevBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateCards();
+                }
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateCards();
+                }
+            });
+            
+            // Page dot event listeners
+            pageDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    currentPage = parseInt(this.getAttribute('data-page'));
+                    updateCards();
+                });
+            });
+            
+            // Swipe gesture support
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            const handleSwipe = () => {
+                const swipeThreshold = 50; // Minimum swipe distance
+                const swipeDistance = touchEndX - touchStartX;
+                
+                if (swipeDistance > swipeThreshold && currentPage > 1) {
+                    // Swipe right - go to previous page
+                    currentPage--;
+                    updateCards();
+                } else if (swipeDistance < -swipeThreshold && currentPage < totalPages) {
+                    // Swipe left - go to next page
+                    currentPage++;
+                    updateCards();
+                }
+            };
+            
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            // Initialize
+            updateCards();
+        });
+    </script>
+</body>
+</html>
