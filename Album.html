@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Album Cưới 3D</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@200;300;400;500&display=swap');
+        
+        :root {
+            --color-primary: #f8f8f8;
+            --color-secondary: #e8e8e8;
+            --color-accent: #d8d3d0;
+            --color-accent-dark: #c8c0bc;
+            --color-spine: #d2cac4;
+            --color-text: #333333;
+            --color-text-light: #888888;
+            --font-display: 'Cormorant Garamond', serif;
+            --font-body: 'Montserrat', sans-serif;
+            --shadow-soft: 0 5px 15px rgba(0,0,0,0.05);
+            --shadow-medium: 0 10px 30px rgba(0,0,0,0.08);
+            --shadow-strong: 0 15px 40px rgba(0,0,0,0.12);
+            --book-width: 900px;
+            --book-height: 500px;
+            --book-thickness: 40px;
+            --page-width: calc(var(--book-width) / 2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--color-primary);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+            font-weight: 300;
+            perspective: 2000px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: var(--color-text);
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .header p {
+            color: var(--color-text-light);
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 1.5px;
+        }
+        
+        /* 3D Book Container */
+        .book-container {
+            width: var(--book-width);
+            height: var(--book-height);
+            position: relative;
+            margin-bottom: 80px;
+            transform-style: preserve-3d;
+            perspective: 3000px;
+        }
+        
+        /* 3D Book */
+        .book {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+        
+        /* Book Cover */
+        .book-cover {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            transition: transform 1.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+            z-index: 100;
+            box-shadow: var(--shadow-medium);
+            background: white;
+            overflow: hidden;
+        }
+        
+        .book-cover.open {
+            transform: rotateY(-170deg);
+            box-shadow: var(--shadow-soft);
+            z-index: 1;
+        }
+        
+        .cover-front, .cover-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+        
+        .cover-front {
+            display: flex;
+            background: white;
+            overflow: hidden;
+            z-index: 5;
+        }
+        
+        .cover-back {
+            background: var(--color-secondary);
+            transform: rotateY(180deg);
+            z-index: 4;
+        }
+        
+        .cover-left, .cover-right {
+            flex: 1;
+            height: 100%;
+            position: relative;
+        }
+        
+        .cover-left {
+            overflow: hidden;
+        }
+        
+        .cover-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background: var(--color-accent);
+        }
+        
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--color-text);
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        
+        .cover-subtitle {
+            color: var(--color-text-light);
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        
+        /* Book Spine */
+        .book-spine {
+            position: absolute;
+            width: var(--book-thickness);
+            height: 100%;
+            left: 0;
+            top: 0;
+            transform-origin: left;
+            transform: rotateY(90deg) translateX(calc(var(--book-thickness) / -2));
+            background: var(--color-spine);
+            z-index: 99;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-display);
+            color: rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            font-weight: 300;
+            text-orientation: mixed;
+            writing-mode: vertical-rl;
+        }
+        
+        /* Book Pages Container */
+        .book-pages {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            perspective: 1500px;
+        }
+        
+        /* Book Pages */
+        .page {
+    position: absolute;
+    width: var(--page-width);
+    height: calc(100% - 10px);
+    top: 5px;
+    right: 5px;
+    background: white;
+    transform-origin: left center;
+    transition: transform 1.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transform-style: preserve-3d;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* Default z-index */
+}
+
+.page.flipped {
+    transform: rotateY(-180deg);
+    z-index: 2; /* Higher z-index when flipped */
+}
+
+.page-front, .page-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-back {
+    transform: rotateY(180deg);
+}
+        /* Pages stacked behind */
+        .page-stack {
+            position: absolute;
+            width: calc(var(--book-width) - 10px);
+            height: calc(100% - 10px);
+            top: 5px;
+            left: 5px;
+            background: white;
+            box-shadow: var(--shadow-medium);
+            transform-style: preserve-3d;
+            z-index: 2;
+        }
+        
+        .page-stack::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.05), rgba(0,0,0,0.1));
+        }
+        
+        /* Page content and photos */
+        .photo-container {
+            width: 90%;
+            height: 90%;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s ease;
+        }
+        
+        .photo-container:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+        
+        .photo-container:hover .photo {
+            transform: scale(1.05);
+        }
+        
+        /* Page fold effects */
+        .page.flipped {
+            transform: rotateY(-180deg);
+        }
+        
+        .page-fold {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.05), transparent 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* Page turning effects */
+        @keyframes pageTurn {
+            0% {
+                transform: rotateY(0);
+            }
+            100% {
+                transform: rotateY(-180deg);
+            }
+        }
+        
+        @keyframes pageUnTurn {
+            0% {
+                transform: rotateY(-180deg);
+            }
+            100% {
+                transform: rotateY(0);
+            }
+        }
+        
+        .page.turning {
+            animation: pageTurn 1.3s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+        }
+        
+        .page.returning {
+            animation: pageUnTurn 1.3s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+        }
+        
+        /* Page shadow during turn */
+        @keyframes pageShadow {
+            0% {
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+            50% {
+                box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+            }
+            100% {
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+        }
+        
+        .page.turning, .page.returning {
+            animation-name: pageTurn, pageShadow;
+            animation-duration: 1.3s, 1.3s;
+            animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1), ease;
+            animation-fill-mode: forwards, forwards;
+        }
+        
+        .page.returning {
+            animation-name: pageUnTurn, pageShadow;
+        }
+        
+        /* Book thickness side pages */
+        .book-pages-side {
+            position: absolute;
+            width: var(--book-thickness);
+            height: calc(100% - 10px);
+            top: 5px;
+            right: 5px;
+            transform: rotateY(90deg) translateX(calc(var(--book-thickness) / 2));
+            transform-origin: right;
+            background: white;
+            z-index: 3;
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, 
+                    transparent 1px, transparent 2px), 
+                linear-gradient(to right,
+                    rgba(0,0,0,0.03), rgba(0,0,0,0));
+            background-size: 100% 3px, 100% 100%;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background-color: var(--color-primary);
+            color: var(--color-text);
+            border: none;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .btn:hover {
+            background-color: var(--color-accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn i {
+            font-size: 0.8rem;
+        }
+        
+        /* Page indicators */
+        .page-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .indicator.active {
+            background-color: var(--color-accent);
+            transform: scale(1.3);
+        }
+        
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.4s ease;
+        }
+        
+        .lightbox.active .lightbox-content {
+            transform: scale(1);
+        }
+        
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.3s;
+            z-index: 1010;
+        }
+        
+        .lightbox-close:hover {
+            color: var(--color-accent);
+            transform: scale(1.1);
+        }
+        
+        .lightbox-nav {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0 30px;
+            z-index: 1010;
+        }
+        
+        .lightbox-nav button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2.5rem;
+            opacity: 0.7;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .lightbox-nav button:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 1024px) {
+            :root {
+                --book-width: 700px;
+                --book-height: 400px;
+                --book-thickness: 30px;
+                --page-width: calc(var(--book-width) / 2);
+            }
+            
+            .header h1 {
+                font-size: 2.4rem;
+            }
+            
+            .cover-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            :root {
+                --book-width: 500px;
+                --book-height: 350px;
+                --book-thickness: 25px;
+                --page-width: calc(var(--book-width) / 2);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .cover-title {
+                font-size: 1.6rem;
+            }
+            
+            .cover-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .cover-front {
+                flex-direction: column;
+            }
+            
+            .cover-left, .cover-right {
+                width: 100%;
+            }
+            
+            .cover-left {
+                height: 60%;
+            }
+            
+            .cover-right {
+                height: 40%;
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.8rem;
+            }
+            
+            .book-spine {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            :root {
+                --book-width: 350px;
+                --book-height: 280px;
+                --book-thickness: 20px;
+                --page-width: calc(var(--book-width) / 2);
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            .cover-title {
+                font-size: 1.4rem;
+            }
+            
+            .cover-subtitle {
+                font-size: 0.8rem;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.75rem;
+                letter-spacing: 1px;
+            }
+            
+            .book-spine {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Album Cưới</h1>
+            <p>Những khoảnh khắc vĩnh cửu của tình yêu</p>
+        </div>
+        
+        <div class="book-container">
+            <div class="book">
+                <!-- Book Cover with 3D effect -->
+                <div class="book-cover" id="book-cover">
+                    <div class="cover-front">
+                        <div class="cover-left">
+                            <img src="https://lh3.googleusercontent.com/pw/AP1GczNa0HCmCOubmSILDOk4e6K39epATENRnrqD53oFH0pnowdH7gYQ5cjOY2isOoMzhcbl1TLVbAGmVO0UhAH314YzbZjyd4rFqLIqjrEx_Eg7_L-K4IrnWNp1Bisii9nAv9Y7V2I6sbbaz1B8D3RH9bqX=w609-h913-s-no-gm?authuser=0" alt="Cover Photo" class="cover-image" id="cover-image">
+                        </div>
+                        <div class="cover-right">
+                            <h2 class="cover-title">Our Wedding</h2>
+                            <p class="cover-subtitle">The story of us</p>
+                        </div>
+                    </div>
+                    <div class="cover-back"></div>
+                </div>
+                
+                <!-- Book Spine -->
+                <div class="book-spine">Wedding Album</div>
+                
+                <!-- Book Pages -->
+                <div class="book-pages" id="book-pages">
+                    <!-- Pages will be dynamically added here -->
+                    <div class="page-stack"></div>
+                    <div class="book-pages-side"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-indicators" id="page-indicators"></div>
+        
+        <div class="controls">
+            <button id="prev-btn" class="btn" disabled>
+                <i class="fas fa-chevron-left"></i> Trang Trước
+            </button>
+            <button id="next-btn" class="btn">
+                Mở Album <i class="fas fa-book-open"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <img src="" alt="Ảnh phóng to" class="lightbox-image" id="lightbox-image">
+            <div class="lightbox-nav">
+                <button id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
+                <button id="lightbox-next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div class="lightbox-close" id="lightbox-close">
+            <i class="fas fa-times"></i>
+        </div>
+    </div>
+    
+  <script>
+    // Configuration - Replace with your actual images
+    const coverImage = "https://lh3.googleusercontent.com/pw/AP1GczNa0HCmCOubmSILDOk4e6K39epATENRnrqD53oFH0pnowdH7gYQ5cjOY2isOoMzhcbl1TLVbAGmVO0UhAH314YzbZjyd4rFqLIqjrEx_Eg7_L-K4IrnWNp1Bisii9nAv9Y7V2I6sbbaz1B8D3RH9bqX=w609-h913-s-no-gm?authuser=0"; // Cover image - Couple
+    
+    // Wedding photos - Thêm tất cả ảnh từ album Google Photos vào đây
+    const weddingPhotos = [
+    // Ảnh đã có trước đây
+    "https://lh3.googleusercontent.com/pw/AP1GczO3yVVPJWS5Xc4f0Htp7nd5FFaiRf66iZflSlig9eJxuXF4YsnATRqFkmbJ0MEgGNfS03C3dyBi3B9JkVufFO2b8epcnJ_MMCgEh_TqK8R0J_aeXsOCGop1QYStip3yslLKVVhYoQOaSbQGT6Z1qxPt=w609-h913-s-no-gm?authuser=0", // Ảnh 1
+    "https://lh3.googleusercontent.com/pw/AP1GczPnBThomv2Rttd1nvIwc4AeFgG0D2cbV5Hjf4PL96rma4H2MY301ipivHILIiUXcvOgfO4XJ8EWL8IoMVHEzUgYYoyZ9lmgnfuwpwy0ZQzIM_gtjGnHxS_7bYG-YGct6X50aZIkpPe15IA8YY6N3INs=w1369-h913-s-no-gm?authuser=0", // Ảnh 2
+    "https://lh3.googleusercontent.com/pw/AP1GczOtnloM71FAWHUbephjkqNILy9ML_RfDuNCPSraUqzq0pR0AxchBG8UIlukLD_zVW9WfFvendRbz97zA1kcWIMEuf8ptjFG7A_dY2t3CglZgFKP7jUxQsRmtobMCju5xduWHcEObOx8ydDnmDk5Eq6p=w609-h913-s-no-gm?authuser=0", // Ảnh 3
+    "https://lh3.googleusercontent.com/pw/AP1GczNFXqz7ptk17-X3wUB1WjvoK8Y3F4_kf-vSOd8f_MmPwMjnd0WOG7hIQPguGEpjQn8aQRjGVbDyCLAKTVnKwjKvyEwYg66yM1XStVXocHpd3IZknXV61UWVwOx5j0hkHKW4CSXpnLwsqb64ORIn72kR=w609-h913-s-no-gm?authuser=0", // Ảnh 4
+    "https://lh3.googleusercontent.com/pw/AP1GczOn5J_cvJDFo-fvhAygosCGKYvjwbtLgkmhPnw1ImTJmREXEfZnyWMzPyLOJmvPypaBMIqXeA7ef6_83KJMRb_6ac2YZ9vnh3QrZxPA-mEFKnFbS5TYF-f8ny3FN4Byw9gGgxKMOSQ-4rVGDgk7WHxF=w609-h913-s-no-gm?authuser=0", // Ảnh 5
+    "https://lh3.googleusercontent.com/pw/AP1GczOS5b4sY3kNhL3d51RBcO6p-bCNm3baxZqmxNAE5G2F6_H02sBfZUX_217AQAWOPJ8Fb01L86E8809TpnF75j6PjJwwB5y7CQko333NYJWqAcpK8APWO9_Ao7fV1V1LSFr-rbyYvytqobKDrtjIHvXl=w609-h913-s-no-gm?authuser=0", // Ảnh 6
+    "https://lh3.googleusercontent.com/pw/AP1GczNxvl_TzQQyt_fJ3yuieqkIs0E1thlEVgLb8JWdLeJ9chuHcaHR10J0aBW3zT0IxPCEa8JAG0_0-Mypgfk4OZeRTAqEcoLuUrOt_rvFdEfR0vL7OSwywv-S-J4fHhgRSprWSp_mvVLOkkIIDm1ZgLdU=w609-h913-s-no-gm?authuser=0", // Ảnh 7
+    "https://lh3.googleusercontent.com/pw/AP1GczMoMjNNA8AG3N4AVe69G8nuf_phRCKTjnZPaw6Gi9ri1ch_1tCACaxdTCWVOL-Ff18TgJcqJ-J9o3naJodx1VpR3PyUHEVQFR2kyko5a6p1DAFzwvHzGeynbRrMxwVpHgPhPcRZMD2MNQ1CuqONt5wd=w1369-h913-s-no-gm?authuser=0", // Ảnh 8
+    
+    // Ảnh mới bạn vừa thêm
+    "https://lh3.googleusercontent.com/pw/AP1GczO7PAMp35xnX9joB1RGaiQGEYAJ__RavHVmhzUuGWPDDpZnNOVwAnqbSFiOTOigz1osIP_MHMGTB4ijpFAg9umpJpOOaNepEshGunLZf1AEynNC7nuz4YEoOKU4kbdYlOM2vGqx4hGvB8LOFirvGcNI=w635-h953-s-no-gm?authuser=0", // Ảnh 9
+    "https://lh3.googleusercontent.com/pw/AP1GczObvAvEypMLA8fnL2kQcTZ7ulardRBrXGClbq4Mv3gKpaVBpCyxlAz49Syuz1-bLKGoo2qtNHqdx3UKtzldW8NzRSJoSCiiYHdkhnkpLSpEJ3HeN_sP-k9kFRLLFC2O3LExt3pzpMQND2Zu_TWCMRjx=w635-h953-s-no-gm?authuser=0", // Ảnh 10
+    "https://lh3.googleusercontent.com/pw/AP1GczNJDWFsmwPkamMie191-Jb6cf1H5gsBh-zLq8IA9UWzr_ZbLFs8LuTT6Pa9ZakX3-n06CSOxbGfjViKNCkNybo2DY63KrIYu9FGq5qM2hWQpU1zzlJhdOShtyZFPie9X3cojkV08aDkpe0yuV8WGaIX=w1430-h953-s-no-gm?authuser=0", // Ảnh 11
+    "https://lh3.googleusercontent.com/pw/AP1GczP0S7_nDxia7pGVvNmRtYGySydSJDB8um5-ZQvhRfST-8o5MQMhz-eFjFo0izA3wC07YdxcHuM559J9xZObOwk2jN6PivgvyKrfFQEgGm-MDlmdLl6MrNQfKvAO-3i9SlagzcKLbGgGzOD-BhID6Vs2=w635-h953-s-no-gm?authuser=0", // Ảnh 12
+    "https://lh3.googleusercontent.com/pw/AP1GczPCwq8LdqsfgaJeqlzSmiSF-r8DGHSQxcJeqdSN2GPotr7wcE96pGyf76ehdh5UJ5SG1e7BixbVlVVfUL0XDrXb_tNrDheYzDy1fZNBooerxwIcqPalwoYraNsKgBXDIGveDLHooFKynhYhslwtoCLr=w635-h953-s-no-gm?authuser=0", // Ảnh 13
+    "https://lh3.googleusercontent.com/pw/AP1GczPs9W8hvtiTC8TdLHPRcYkH0i2Le-jpF2cs2bwFpxFYp014IzejRG7rNZ-duzEihAys4EK6RGzsANpJDQMg79kB1NZrTYLTyebrWrqLYioO4rb2Z2hzZVKMuw7E0qMnxwCh-ck3BKbzTqc8GGbTcfVo=w635-h953-s-no-gm?authuser=0", // Ảnh 14
+    "https://lh3.googleusercontent.com/pw/AP1GczPkj2Tv9i7Fd46Rab1n1hYsiVRqaykrJso-pRi9tNARGO42DusI-_iCrCUKmHH06mHsyjiQ0H2RPPj7AS3fP1lSvJGVmW9au-b9cBKVcqNXLphu6K0ggl96Aq2m4-VmEvTOX8ASUMUM1t9dkThKQCey=w635-h953-s-no-gm?authuser=0", // Ảnh 15
+    "https://lh3.googleusercontent.com/pw/AP1GczO1POGMV5aCPNDMkZ54RDFvi-ShnQ3wmdg1x2mcmCoFw8xkbtoxposqwy87vKHKFW6fS7cz-7VXxeIhjndWcXCGM5F3aIb1p4wAMALcFggtmzf5Buqk_MkuC6HZ-4OcriRkAR51sz73NJ9aidionnfx=w635-h953-s-no-gm?authuser=0", // Ảnh 16
+    "https://lh3.googleusercontent.com/pw/AP1GczNM8ARFLYqXiob7imF5flC0NtUCF42EJJQMqMSUf023384mtFikzwixckw1xSjqpbQOkvgumT3rLCa6i3zQY92X-jvH3urVs_8nKWuUV_OM1W-RoqQvOxGccfvbS_fEI3YiwxGWJX4wMpKmkLC_Shlf=w635-h953-s-no-gm?authuser=0", // Ảnh 17
+    "https://lh3.googleusercontent.com/pw/AP1GczPOS8zl8o38KGhWpRFQTu60S-bZuh9vRqk7bWO0ZlrI4zRXOp4ydMs8t3Zg2dT_ZcGSZaJqBqdVA7evl-Pw83N_R-AF3K4T0sYRGbpYh59-wBJco8_8SXPcIOF9Iu2AGIEbGRLeNzMfyLBX-5jMcj6U=w635-h953-s-no-gm?authuser=0", // Ảnh 18
+    "https://lh3.googleusercontent.com/pw/AP1GczMCbF3hq35tM8RXWfNSE4oEdj7dPtGjmdKNoE9oLpDAL0N1BOGC_CRPVdJmCWNx-qcjesl4zHzz4nSSVaf8bNpvjDlYo2c-UbvS-SAHeYOuocZZuSnot4GACxU8mSypX6nBu2sCvIARhovXaf7126UN=w635-h953-s-no-gm?authuser=0", // Ảnh 19
+    "https://lh3.googleusercontent.com/pw/AP1GczMBM9hou9exebK1vXYGklk-r2fHWmG3MhnEyLUHnLcM9J81Raxu7IQMlDdJNaJy7WNE3H_ZbnCtvChAiI1FwN03FtXqATDtM938tLRAAwRMZdTvUFcWOrwXUa7Ihu2rR_bWUqZfAJh-freXlqq7Pt0s=w635-h953-s-no-gm?authuser=0", // Ảnh 20
+    "https://lh3.googleusercontent.com/pw/AP1GczPAcHK7-OOReaSoGglPSzYbUOwGEFMa2_l-CnaOoe2wwQtCi6ymh7dNAUDvRFE8qJfxcueiRwmUF-CHQnShwhrh7Nn4mBTJmZwB4po5pkewVyrLTOKZaHmKJ9Awq4M59imYPlFBpSWQlwrmw9IMMF3f=w635-h953-s-no-gm?authuser=0", // Ảnh 21
+    "https://lh3.googleusercontent.com/pw/AP1GczP9XEf25og0JacM6t0Es99ZRuPibJT6Twi47gbItNI_R3BUAC4xC1e5wlMO4PE9d7RQkRaKt-HPnXne3Ku_Dyka8RrgytNa4x8RsilkyjXam7Ac8aqzEeE-3g_mfmIQCmJOdAQU22dSYwN54DWTzmnw=w635-h953-s-no-gm?authuser=0", // Ảnh 22
+    "https://lh3.googleusercontent.com/pw/AP1GczMpL33jtmSn3eQ0zDaKfzbhFerpNzrNrRSX5ozQZemtp49yxiEKTrptJ5L1xHVXu9pY5oPywcQmPiE_wi-se5vs1VgR0ONDgsYVty0gnsZEQdQB3H3DjgXrR-hwOIJAeBSzklYzzCUlUm_1jhQD5-Fv=w635-h953-s-no-gm?authuser=0", // Ảnh 23
+    "https://lh3.googleusercontent.com/pw/AP1GczOJAEtvy7tB8kKVY0_wgaOCMOL6DCAu6S96K7SuvOGTS5mJtUsUo7h2pBWkGoXZyyGLYaFQGf1rcYJ8cXSGbuGwJswqTYUe37ATbeoDKZyTMLKdyfSQ4h-oJIINXlZ4ujQY5IuS_AgJ51lD7QakDrko=w635-h953-s-no-gm?authuser=0", // Ảnh 24
+    "https://lh3.googleusercontent.com/pw/AP1GczMHMDG-eSqIxk1ucMR99_h-f6xddSnIAy3iXwqyaIu0NO7dnUwhpjz5UprJ_Igkz_SjNdnIm480f5IqBLIhIQg7XHl01LQPRcGfGW8oND4C0Mcqoobhb0bMP-NNCOYSc1CK9mbSCGHLOOinMzbr1lfp=w635-h953-s-no-gm?authuser=0", // Ảnh 25
+    "https://lh3.googleusercontent.com/pw/AP1GczNY2VgVrPw8OXf6SSywqFSPzEnLaNgY0McYnUP-2OnN7N_JzA-DQPTnubhRxQn28mJE5LSpgAnnZOwRR5VFSaNqSEuTttDDS2AQrSJChcY4MfG83XUe_X5izXlFiAKfVRulJIute4WTbyml_mtnOSlT=w635-h953-s-no-gm?authuser=0", // Ảnh 26
+    "https://lh3.googleusercontent.com/pw/AP1GczNa0HCmCOubmSILDOk4e6K39epATENRnrqD53oFH0pnowdH7gYQ5cjOY2isOoMzhcbl1TLVbAGmVO0UhAH314YzbZjyd4rFqLIqjrEx_Eg7_L-K4IrnWNp1Bisii9nAv9Y7V2I6sbbaz1B8D3RH9bqX=w635-h953-s-no-gm?authuser=0", // Ảnh 27
+    "https://lh3.googleusercontent.com/pw/AP1GczPpq4dRdOBJ3XXciGNihZLIcPuEx6gLlocgmjxYJ1pTMRf7-9-O4iQyQPyvd7gm2g03a-HCcCfz1EqnMOeaOapv55ARFo9UVeOAHeqQb7bVysATKzQSjq_X7W3eNosmNROvapQN_MO__sO4IXLF8G4v=w635-h953-s-no-gm?authuser=0", // Ảnh 28
+    "https://lh3.googleusercontent.com/pw/AP1GczM1iJIXGzg3GoYjiphlVd3lNyp2_SQSakGcMGww6YfEvlbykVuFZajt0LjnYGFkNNNXejg2GVQR7lOJm8yVvyi6vFlob9x0hGkz-jDCESKekliipULF5-oSQS0Khc81yoaEcRAVJb6dO4r9C7dxom4K=w635-h953-s-no-gm?authuser=0", // Ảnh 29
+    "https://lh3.googleusercontent.com/pw/AP1GczMFcl2plmSRk-iL_0RjyzIs1PQHedng-CRhM-rJD_ESdr8g2vH83mzxvDE2JdU86w7Giz6fsUKPpd7BlhyVqDWPQlNzGCOKyAUyC_k76-qEnICreyi4v0qeoSTuA44Pc0kLNGva9tA5qFa0csjV39mA=w635-h953-s-no-gm?authuser=0", // Ảnh 30
+    "https://lh3.googleusercontent.com/pw/AP1GczMKdmsuBR_u3PMbas7lU2n8NWGFtTstJwBmN0JXpOziT162FsCU3TeHmZOqghHn1Uf93N33AU-RQa7J27hczwCQn0BUxg5Goe8ys8QcIfxFwj4bxcbGKYdC8bATBKtNbpBKCiOBYZyC43mdNBpJj4xM=w635-h953-s-no-gm?authuser=0", // Ảnh 31
+    "https://lh3.googleusercontent.com/pw/AP1GczP1zO1P6v0aUNinIPXTnF8Rzkip1YYNZUZPLMu3kHzM1voIL8xNImBODC_RMVsWYX623JGwmgVA3V_K2DK9YSBUHL2-2Vhy48blnzQIMYOcae-SIGOxBaUbEAiH3O7MPqzQ5GdQR0tsHjAo9M_6eebJ=w635-h953-s-no-gm?authuser=0", // Ảnh 32
+    "https://lh3.googleusercontent.com/pw/AP1GczMxa1x5DCClrcN5OhLT-b_NvvWov_Vr3k6zIk1dAuqq-qkr3GF5cqve-qgLBokUwhJfElc3Oge8rLfHNDHfCKjIAZJKRTwwLVVadAUfYeoMgE6xl32EQEGJ2BZXuy-Qgd4nzGe1cA1NDYON44wPlchN=w635-h953-s-no-gm?authuser=0", // Ảnh 33
+    "https://lh3.googleusercontent.com/pw/AP1GczOCu-6M8HBnaxvmkOQ9XLOX8fvKzIBgw9BhFk6XVQgK0v3YBCjeMssofvsXolf_XRC1SbMu1f1-LpHjabOuKxMkpdFo-eFzL42fSme-m5LV3n3F8T4s_PiwmDGyj3gZYQKSRRbmCzk_QZgcg-MxUy83=w635-h953-s-no-gm?authuser=0", // Ảnh 34
+    "https://lh3.googleusercontent.com/pw/AP1GczNsRQeYcTQyH-kT0RWcZfprLNvQeI9YgYKOnJIjJJDr--eXkwpNAjGT-Ads6JAyGFz6Ipgjc1TxEMrG1Os8GR6kNON1EN7PKPjIh4iWNpiry1Ay5zmBS3lToTbrHFEyrqm8Ct8Ua39Z284_uEKRxHh7=w635-h953-s-no-gm?authuser=0", // Ảnh 35
+    "https://lh3.googleusercontent.com/pw/AP1GczNAUEVa9tt-7MK0kYFbSNlN2f0MuBL2UJDBl1Wq43ofsR9GHa5F2ct31tVd_zVIoKp_F5WY1svVQSJYHijHxUyq60nH8Vdy7fJoRySAevGhkLrjwHagZ6BCAE9jp5UHstJFUGbwQ2fgrROkYx8te76s=w635-h953-s-no-gm?authuser=0",
+"https://lh3.googleusercontent.com/pw/AP1GczNAUEVa9tt-7MK0kYFbSNlN2f0MuBL2UJDBl1Wq43ofsR9GHa5F2ct31tVd_zVIoKp_F5WY1svVQSJYHijHxUyq60nH8Vdy7fJoRySAevGhkLrjwHagZ6BCAE9jp5UHstJFUGbwQ2fgrROkYx8te76s=w635-h953-s-no-gm?authuser=0" // Ảnh 36
+];
+    
+    // DOM Elements
+    const bookCover = document.getElementById('book-cover');
+    const bookPages = document.getElementById('book-pages');
+    const pageIndicators = document.getElementById('page-indicators');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+    
+    // Set cover image
+    document.getElementById('cover-image').src = coverImage;
+    
+    // Variables
+    let currentPage = 0; // 0: cover closed, 1-totalPages: pages
+    let totalPages; // Sẽ được tính toán trong createPages()
+    let isBookOpen = false;
+    let isAnimating = false;
+    let allImages = [coverImage, ...weddingPhotos]; // All images including cover
+    let currentLightboxIndex = 0;
+    
+    // Create book pages
+    function createPages() {
+        // Clear any existing pages & indicators
+        bookPages.innerHTML = '';
+        pageIndicators.innerHTML = '';
+        
+        // Calculate total pages needed
+        totalPages = Math.ceil(weddingPhotos.length / 2);
+        
+        console.log("Total wedding photos:", weddingPhotos.length);
+        console.log("Total pages needed:", totalPages);
+        
+        // Create each page
+        for (let i = 0; i < totalPages; i++) {
+            // Calculate image indices for this page
+            const leftImageIndex = i * 2;
+            const rightImageIndex = i * 2 + 1;
+            
+            console.log(`Page ${i+1} - Left image index: ${leftImageIndex} (Ảnh ${leftImageIndex+1}), Right image index: ${rightImageIndex} (Ảnh ${rightImageIndex+1})`);
+            
+            // Create page element
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.id = `page-${i + 1}`;
+            page.style.zIndex = totalPages - i;
+            
+            // Create page front (left side)
+            const pageFront = document.createElement('div');
+            pageFront.className = 'page-front';
+            
+            // Only add front content if we have an image for it
+            if (leftImageIndex < weddingPhotos.length) {
+                // Container for front image
+                const photoContainerFront = document.createElement('div');
+                photoContainerFront.className = 'photo-container';
+                
+                // Front image (left side)
+                const photoFront = document.createElement('img');
+                photoFront.className = 'photo';
+                photoFront.src = weddingPhotos[leftImageIndex];
+                photoFront.alt = `Wedding Photo ${leftImageIndex + 1}`;
+                // Chỉ số thực trong lightbox (đánh số từ 1)
+                photoFront.dataset.index = leftImageIndex + 1;
+                
+                // Fold effect for front
+                const pageFoldFront = document.createElement('div');
+                pageFoldFront.className = 'page-fold';
+                
+                // Add click event for lightbox on front image
+                photoContainerFront.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openLightbox(parseInt(photoFront.dataset.index));
+                });
+                
+                // Assemble front of page
+                photoContainerFront.appendChild(photoFront);
+                pageFront.appendChild(photoContainerFront);
+                pageFront.appendChild(pageFoldFront);
+            }
+            
+            // Create page back (right side)
+            const pageBack = document.createElement('div');
+            pageBack.className = 'page-back';
+            
+            // Only add back content if we have an image for it
+            if (rightImageIndex < weddingPhotos.length) {
+                // Container for back image
+                const photoContainerBack = document.createElement('div');
+                photoContainerBack.className = 'photo-container';
+                
+                // Back image (right side)
+                const photoBack = document.createElement('img');
+                photoBack.className = 'photo';
+                photoBack.src = weddingPhotos[rightImageIndex];
+                photoBack.alt = `Wedding Photo ${rightImageIndex + 1}`;
+                // Chỉ số thực trong lightbox (đánh số từ 1)
+                photoBack.dataset.index = rightImageIndex + 1;
+                
+                // Fold effect for back
+                const pageFoldBack = document.createElement('div');
+                pageFoldBack.className = 'page-fold';
+                
+                // Add click event for lightbox on back image
+                photoContainerBack.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openLightbox(parseInt(photoBack.dataset.index));
+                });
+                
+                // Assemble back of page
+                photoContainerBack.appendChild(photoBack);
+                pageBack.appendChild(photoContainerBack);
+                pageBack.appendChild(pageFoldBack);
+            }
+            
+            // Assemble page
+            page.appendChild(pageFront);
+            page.appendChild(pageBack);
+            
+            // Add to book pages container
+            bookPages.appendChild(page);
+        }
+        
+        // Create page indicators
+        for (let i = 0; i <= totalPages; i++) {
+            const indicator = document.createElement('div');
+            indicator.className = i === 0 ? 'indicator active' : 'indicator';
+            indicator.dataset.page = i;
+            
+            indicator.addEventListener('click', function() {
+                goToPage(parseInt(indicator.dataset.page));
+            });
+            
+            pageIndicators.appendChild(indicator);
+        }
+    }
+    
+    // Initialize album
+    function initAlbum() {
+        createPages();
+        
+        // Setup event listeners
+        prevBtn.addEventListener('click', previousPage);
+        nextBtn.addEventListener('click', nextPage);
+        
+        // Setup lightbox
+        setupLightbox();
+        
+        // Add keyboard navigation
+        document.addEventListener('keydown', handleKeyNavigation);
+    }
+    
+    // Setup lightbox
+    function setupLightbox() {
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxPrev.addEventListener('click', prevLightboxImage);
+        lightboxNext.addEventListener('click', nextLightboxImage);
+        
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+    }
+    
+    // Open lightbox
+    function openLightbox(index) {
+        currentLightboxIndex = index;
+        lightboxImage.src = allImages[index];
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Close lightbox
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Previous lightbox image
+    function prevLightboxImage() {
+        currentLightboxIndex = Math.max(0, currentLightboxIndex - 1);
+        lightboxImage.src = allImages[currentLightboxIndex];
+    }
+    
+    // Next lightbox image
+    function nextLightboxImage() {
+        currentLightboxIndex = Math.min(allImages.length - 1, currentLightboxIndex + 1);
+        lightboxImage.src = allImages[currentLightboxIndex];
+    }
+    
+    // Open the book
+    function openBook() {
+        if (isAnimating || isBookOpen) return;
+        
+        isAnimating = true;
+        bookCover.classList.add('open');
+        
+        setTimeout(function() {
+            isBookOpen = true;
+            currentPage = 1;
+            isAnimating = false;
+            updateControls();
+            updatePageIndicators();
+        }, 1500);
+    }
+    
+    // Close the book
+    function closeBook() {
+        if (isAnimating || !isBookOpen) return;
+        
+        isAnimating = true;
+        
+        // First, make sure all pages are unflipped
+        const pages = document.querySelectorAll('.page');
+        let maxDelay = 0;
+        
+        for (let i = pages.length - 1; i >= 0; i--) {
+            if (pages[i].classList.contains('flipped')) {
+                const delay = (pages.length - 1 - i) * 200;
+                maxDelay = Math.max(maxDelay, delay);
+                
+                setTimeout(function() {
+                    pages[i].classList.remove('flipped');
+                    pages[i].classList.add('returning');
+                    
+                    setTimeout(function() {
+                        pages[i].classList.remove('returning');
+                    }, 1300);
+                }, delay);
+            }
+        }
+        
+        // Then close the cover
+        setTimeout(function() {
+            bookCover.classList.remove('open');
+            
+            setTimeout(function() {
+                isBookOpen = false;
+                currentPage = 0;
+                isAnimating = false;
+                updateControls();
+                updatePageIndicators();
+            }, 1500);
+        }, maxDelay + 500);
+    }
+    
+    // Go to previous page
+    function previousPage() {
+        if (isAnimating) return;
+        
+        if (currentPage === 0) return;
+        
+        if (currentPage === 1) {
+            closeBook();
+            return;
+        }
+        
+        isAnimating = true;
+        const pageToUnflip = document.getElementById(`page-${currentPage - 1}`);
+        
+        if (pageToUnflip) {
+            // Set z-index for the page being unflipped
+            pageToUnflip.style.zIndex = totalPages + 1;
+            
+            pageToUnflip.classList.remove('flipped');
+            pageToUnflip.classList.add('returning');
+            
+            setTimeout(function() {
+                pageToUnflip.classList.remove('returning');
+                currentPage--;
+                isAnimating = false;
+                updateControls();
+                updatePageIndicators();
+            }, 1300);
+        } else {
+            console.error("Could not find page to unflip:", `page-${currentPage - 1}`);
+            isAnimating = false;
+        }
+    }
+    
+    // Go to next page
+    function nextPage() {
+        if (isAnimating) return;
+        
+        if (currentPage === 0) {
+            openBook();
+            return;
+        }
+        
+        if (currentPage >= totalPages) {
+            closeBook();
+            return;
+        }
+        
+        isAnimating = true;
+        const pageToFlip = document.getElementById(`page-${currentPage}`);
+        
+        if (pageToFlip) {
+            // Set z-index for the page being flipped
+            pageToFlip.style.zIndex = totalPages + 1;
+            
+            pageToFlip.classList.add('flipped');
+            pageToFlip.classList.add('turning');
+            
+            setTimeout(function() {
+                pageToFlip.classList.remove('turning');
+                currentPage++;
+                isAnimating = false;
+                updateControls();
+                updatePageIndicators();
+            }, 1300);
+        } else {
+            console.error("Could not find page to flip:", `page-${currentPage}`);
+            isAnimating = false;
+        }
+    }
+    
+    // Go to specific page
+    function goToPage(pageNum) {
+        if (isAnimating || pageNum === currentPage) return;
+        
+        if (pageNum === 0) {
+            closeBook();
+            return;
+        }
+        
+        if (currentPage === 0) {
+            openBook();
+            setTimeout(function() {
+                if (pageNum !== 1) {
+                    goToPage(pageNum);
+                }
+            }, 1800);
+            return;
+        }
+        
+        isAnimating = true;
+        
+        // Determine if we need to flip forward or backward
+        if (pageNum > currentPage) {
+            // Flip pages forward
+            let delay = 0;
+            
+            for (let i = currentPage; i < pageNum; i++) {
+                setTimeout(function() {
+                    const pageToFlip = document.getElementById(`page-${i}`);
+                    if (pageToFlip && !pageToFlip.classList.contains('flipped')) {
+                        // Set z-index for proper stacking
+                        pageToFlip.style.zIndex = totalPages + 1 + (i - currentPage);
+                        
+                        pageToFlip.classList.add('flipped');
+                        pageToFlip.classList.add('turning');
+                        
+                        setTimeout(function() {
+                            pageToFlip.classList.remove('turning');
+                        }, 1300);
+                    }
+                }, delay);
+                delay += 300;
+            }
+            
+            setTimeout(function() {
+                currentPage = pageNum;
+                isAnimating = false;
+                updateControls();
+                updatePageIndicators();
+            }, delay + 1300);
+        } else {
+            // Flip pages backward
+            let delay = 0;
+            
+            for (let i = currentPage - 1; i >= pageNum; i--) {
+                setTimeout(function() {
+                    const pageToUnflip = document.getElementById(`page-${i}`);
+                    if (pageToUnflip && pageToUnflip.classList.contains('flipped')) {
+                        // Set z-index for proper stacking
+                        pageToUnflip.style.zIndex = totalPages + 1 + (currentPage - 1 - i);
+                        
+                        pageToUnflip.classList.remove('flipped');
+                        pageToUnflip.classList.add('returning');
+                        
+                        setTimeout(function() {
+                            pageToUnflip.classList.remove('returning');
+                        }, 1300);
+                    }
+                }, delay);
+                delay += 300;
+            }
+            
+            setTimeout(function() {
+                currentPage = pageNum;
+                isAnimating = false;
+                updateControls();
+                updatePageIndicators();
+            }, delay + 1300);
+        }
+    }
+    
+    // Update controls
+    function updateControls() {
+        prevBtn.disabled = currentPage === 0;
+        
+        if (currentPage === 0) {
+            nextBtn.innerHTML = 'Mở Album <i class="fas fa-book-open"></i>';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Trang Trước';
+        } else if (currentPage >= totalPages) {
+            nextBtn.innerHTML = 'Đóng Album <i class="fas fa-book"></i>';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Trang Trước';
+        } else {
+            nextBtn.innerHTML = 'Trang Tiếp <i class="fas fa-chevron-right"></i>';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Trang Trước';
+        }
+        
+        if (currentPage === 1) {
+            prevBtn.innerHTML = '<i class="fas fa-book"></i> Đóng Album';
+        }
+    }
+    
+    // Update page indicators
+    function updatePageIndicators() {
+        const indicators = pageIndicators.querySelectorAll('.indicator');
+        indicators.forEach(function(indicator, index) {
+            if (index === currentPage) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+    }
+    
+    // Handle keyboard navigation
+    function handleKeyNavigation(e) {
+        if (lightbox.classList.contains('active')) {
+            // Lightbox navigation
+            if (e.key === 'ArrowLeft') {
+                prevLightboxImage();
+            } else if (e.key === 'ArrowRight') {
+                nextLightboxImage();
+            } else if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        } else {
+            // Book navigation
+            if (e.key === 'ArrowLeft') {
+                previousPage();
+            } else if (e.key === 'ArrowRight') {
+                nextPage();
+            }
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initAlbum);
+</script>
+</body>
+</html>
